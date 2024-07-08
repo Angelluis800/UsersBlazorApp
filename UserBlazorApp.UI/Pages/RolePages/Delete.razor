@@ -1,0 +1,63 @@
+﻿@page "/Role/Delete/roleId={RoleId:int}"
+
+@inject IClientService<AspNetRoles> roleService
+@inject NavigationManager Navigation
+
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header text-center">
+			<div class="bg-primary text-white">
+				<h3><strong>Eliminar Role</strong></h3>
+			</div>
+		</div>
+		@*Body*@
+		<div class="card-body">
+			<div class="text-center">
+				<h4><strong>¿Est&aacute;s seguro de eliminar el Role @Role.Name</strong></h4>
+			</div>
+			<ul>
+				<li><strong>Id:</strong> @Role.Id</li>
+				<li><strong>Nombre de Role:</strong> @Role.Name</li>				
+			</ul>
+		</div>
+		@*Footer*@
+		<div class="card-footer">
+			<div class="text-center">
+				<button class="btn btn-danger" @onclick="EliminarRole">Eliminar</button>
+				<button type="button" class="btn btn-primary" @onclick="Volver">Volver</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public int RoleId { get; set; }
+
+	public AspNetRoles Role { get; set; } = new AspNetRoles();
+	public string Mensaje { get; set; } = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		Role = await roleService.GetByIdAsync(RoleId);
+	}
+
+	private async Task EliminarRole(){
+		var result = await roleService.DeleteAsync(RoleId);
+
+		if (result != null) {
+			Mensaje = "Role Eliminado Correctamente";
+			Role = new AspNetRoles();
+			Volver();
+		}
+
+		else
+			Mensaje = "Error al Eliminar el Role";
+		
+	}
+
+	public void Volver(){
+		Navigation.NavigateTo("/Role/Index");
+	}
+}

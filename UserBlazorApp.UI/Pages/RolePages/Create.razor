@@ -1,0 +1,134 @@
+﻿@page "/Role/Create"
+
+@inject IClientService<AspNetRoles> roleService
+@inject NavigationManager Navigation
+
+<PageTitle>Roles Create</PageTitle>
+<EditForm Model="Roles" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="container">
+        <div class="card shadow-lg">
+            <!-- Header -->
+            <div class="card-header bg-primary text-white text-center">
+                <h3><strong>Crear Roles</strong></h3>
+            </div>
+            <!-- Body -->
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-1">
+                        <!-- ID -->
+                        <label class="form-label" for="id"><strong>Id</strong></label>
+                        <InputNumber class="form-control" id="id" readonly @bind-Value="Roles.Id"></InputNumber>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-3">
+                        <!-- Role Name -->
+                        <label class="form-label" for="Name"><strong>Rol</strong></label>
+                        <InputText class="form-control" id="Name" @bind-Value="Roles.Name"></InputText>
+                    </div>
+                </div>
+            </div>
+            <!-- Detalle -->
+            <div class="container">
+                <div class="card-header">
+                    <h3><strong>Detalles de Permisos</strong></h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mt-3">
+                        <div class="col-5">
+                            <label class="form-label" for="ClaimType"><strong>Nuevo Claim Type</strong></label>
+                            <InputText class="form-control" id="ClaimType" @bind-Value="Claim.ClaimType"></InputText>
+                        </div>
+                        <div class="col-5">
+                            <label class="form-label" for="ClaimValue"><strong>Nuevo Claim Value</strong></label>
+                            <InputText class="form-control" id="ClaimValue" @bind-Value="Claim.ClaimValue"></InputText>
+                        </div>
+                        <div class="col-2 d-flex align-items-end">
+                            <button type="button" class="btn btn-primary" @onclick="AddClaim">Agregar Claim</button>
+                        </div>
+                    </div>
+                    <!-- Tabla -->
+                    <table class="table table-bordered mt-3">
+                        <thead>
+                            <tr>
+                                <th>Claim Type</th>
+                                <th>Claim Value</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var claim in Roles.AspNetRoleClaims)
+                            {
+                                <tr>
+                                    <td>@claim.ClaimType</td>
+                                    <td>@claim.ClaimValue</td>
+                                    <td>
+                                        <button class="btn btn-danger" @onclick="() => RemoveClaim(claim)">Eliminar</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Footer -->
+            <div class="card-footer text-center">
+                <button type="button" class="btn btn-outline-secondary ms-2" @onclick="Volver"> Volver</button>
+                <button type="submit" class="btn btn-outline-primary ms-2">Guardar</button>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@Mensaje
+
+@code {
+    public AspNetRoles Roles { get; set; } = new AspNetRoles();
+    public AspNetRoleClaims Claim { get; set; } = new AspNetRoleClaims();
+    public string Mensaje { get; set; } = string.Empty;
+
+    public async Task Guardar()
+    {
+        // Log the JSON to the console for debugging
+        var json = System.Text.Json.JsonSerializer.Serialize(Roles);
+        Console.WriteLine(json);
+
+        var result = await roleService.AddAsync(Roles);
+
+        if (result != null)
+        {
+            Mensaje = "Roles creado correctamente";
+            Roles = new AspNetRoles();
+            Claim = new AspNetRoleClaims(); // Reset the new claim form
+        }
+        else
+        {
+            Mensaje = "Error al crear el Roles";
+        }
+    }
+
+    public void Volver()
+    {
+        Navigation.NavigateTo("/Role/Index");
+    }
+
+    public void AddClaim()
+    {
+        if (!string.IsNullOrWhiteSpace(Claim.ClaimType) && !string.IsNullOrWhiteSpace(Claim.ClaimValue))
+        {
+            Roles.AspNetRoleClaims.Add(new AspNetRoleClaims
+                {
+                    ClaimType = Claim.ClaimType,
+                    ClaimValue = Claim.ClaimValue,
+                    // RoleId will be set on the server side
+                });
+            Claim = new AspNetRoleClaims(); // Reset the new claim form
+        }
+    }
+
+    public void RemoveClaim(AspNetRoleClaims claim)
+    {
+        Roles.AspNetRoleClaims.Remove(claim);
+    }
+}

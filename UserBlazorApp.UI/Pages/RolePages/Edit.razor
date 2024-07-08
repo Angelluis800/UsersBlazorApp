@@ -1,0 +1,70 @@
+﻿@page "/Role/Edit/roleId={RoleId:int}"
+
+@inject IClientService<AspNetRoles> roleService
+@inject NavigationManager Navigation
+
+<PageTitle>Rol Editar</PageTitle>
+<EditForm Model="Roles" OnValidSubmit="Modificar">
+	<DataAnnotationsValidator />
+	<div class="container">
+		<div class="card shadow-lg">
+			@*Header*@
+			<div class="card-header text-center">
+				<div class="bg-primary text-white">
+					<h3><strong>Crear Roles</strong></h3>
+				</div>
+			</div>
+			@*Body*@
+			<div class="card-body">
+				<div class="row">
+					<div class="col-1">
+						@*ID*@
+						<label class="form-label" for="id"><strong>Id</strong></label>
+						<InputNumber class="form-control" id="id" @bind-Value="Roles.Id"></InputNumber>
+					</div>
+					<div class="col-3">
+						@*Rol*@
+						<label class="form-label" for="userName"><strong>UserName</strong></label>
+						<InputText class="form-control" id="userName" @bind-Value="Roles.Name"></InputText>
+						@* <ValidationMessage For="@(() => Roles.UserName)" /> *@
+					</div>
+					
+				</div>
+			</div>
+			@*Footer*@
+			<div class="card-footer text-center">
+				<button type="button" class="btn btn-outline-secondary ms-2" @onclick="()=>Volver()"> Volver</button>
+				<button type="submit" class="btn btn-outline-primary ms-2">Guardar</button>
+			</div>
+		</div>
+	</div>
+</EditForm>
+
+@Mensaje
+@code {
+	[Parameter]
+	public int RoleId { get; set; }
+
+	public AspNetRoles Roles { get; set; } = new AspNetRoles();
+	public string Mensaje { get; set; } = string.Empty;
+
+	protected override async Task OnInitializedAsync() {
+		Roles = await roleService.GetByIdAsync(RoleId);
+	}
+
+	public async Task Modificar() {
+		var result = await roleService.UpdateAsync(Roles);
+
+		if (result != null) {
+			Mensaje = "Roles Modificado  correctamente";
+			Roles = new AspNetRoles();
+		}
+
+		else
+			Mensaje = "Error al Modificar el Roles";
+	}
+
+	public void Volver() {
+		Navigation.NavigateTo("/Role/Index");
+	}
+}
