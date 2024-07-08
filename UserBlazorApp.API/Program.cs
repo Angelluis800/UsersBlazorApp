@@ -1,6 +1,9 @@
 
 using Microsoft.EntityFrameworkCore;
-using UsersBlazorApp.Data.Context;
+using UserBlazorApp.API.Services;
+using UsersBlazorApp.API.Context;
+using UsersBlazorApp.Data.Interfaces;
+using UsersBlazorApp.Data.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +15,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<UsersDbContext>(o => o.UseSqlServer(builder.Configuration.GetConnectionString("ConStr")));
+//Inyeccion de servicios
+builder.Services.AddScoped<IApiService<AspNetUsers>, UserService>();
+builder.Services.AddScoped<IApiService<AspNetRoles>, RoleService>();
+builder.Services.AddScoped<IApiService<AspNetRoleClaims>, ClaimService>();
+
+builder.Services.AddCors(options => {
+    options.AddPolicy("AllowAnyOrigin",
+        builder => builder.AllowAnyOrigin() // Allow any origin
+                          .AllowAnyMethod()
+                          .AllowAnyHeader());
+});
 
 var app = builder.Build();
 
@@ -21,6 +35,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("AllowAnyOrigin"); // Use the CORS policy
 
 app.UseHttpsRedirection();
 
