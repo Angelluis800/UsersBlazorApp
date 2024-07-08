@@ -7,29 +7,24 @@
 <EditForm Model="Roles" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
     <div class="container">
-        <div class="card shadow-lg">
-            <!-- Header -->
+        <div class="card shadow-lg">            
             <div class="card-header bg-primary text-white text-center">
                 <h3><strong>Crear Roles</strong></h3>
-            </div>
-            <!-- Body -->
+            </div>            
             <div class="card-body">
                 <div class="row">
-                    <div class="col-1">
-                        <!-- ID -->
+                    <div class="col-1">                        
                         <label class="form-label" for="id"><strong>Id</strong></label>
                         <InputNumber class="form-control" id="id" readonly @bind-Value="Roles.Id"></InputNumber>
                     </div>
                 </div>
                 <div class="row mt-2">
-                    <div class="col-3">
-                        <!-- Role Name -->
+                    <div class="col-3">                     
                         <label class="form-label" for="Name"><strong>Rol</strong></label>
                         <InputText class="form-control" id="Name" @bind-Value="Roles.Name"></InputText>
                     </div>
                 </div>
-            </div>
-            <!-- Detalle -->
+            </div>           
             <div class="container">
                 <div class="card-header">
                     <h3><strong>Detalles de Permisos</strong></h3>
@@ -47,14 +42,13 @@
                         <div class="col-2 d-flex align-items-end">
                             <button type="button" class="btn btn-primary" @onclick="AddClaim">Agregar Claim</button>
                         </div>
-                    </div>
-                    <!-- Tabla -->
+                    </div>                    
                     <table class="table table-bordered mt-3">
                         <thead>
                             <tr>
                                 <th>Claim Type</th>
                                 <th>Claim Value</th>
-                                <th>Acciones</th>
+                                <th>Eliminar</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -71,8 +65,7 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-            <!-- Footer -->
+            </div>            
             <div class="card-footer text-center">
                 <button type="button" class="btn btn-outline-secondary ms-2" @onclick="Volver"> Volver</button>
                 <button type="submit" class="btn btn-outline-primary ms-2">Guardar</button>
