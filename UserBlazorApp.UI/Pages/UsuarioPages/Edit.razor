@@ -1,92 +1,158 @@
 ﻿@page "/Usuario/Edit/{UsuarioId:int}"
 
 @inject IClientService<AspNetUsers> userService
+@inject IClientService<AspNetRoles> roleService
 @inject NavigationManager Navigation
 
 <PageTitle>Usuario Edit</PageTitle>
 <EditForm Model="Usuario" OnValidSubmit="Modificar">
-	<DataAnnotationsValidator />
-	<div class="container">
-		<div class="card shadow-lg">
-			@*Header*@
-			<div class="card-header text-center">
-				<div class="bg-primary text-white">
-					<h3><strong>Editar Usuario</strong></h3>
-				</div>
-			</div>
-			@*Body*@
-			<div class="card-body">
-				<div class="row">
-					<div class="col-1">
-						@*ID*@
-						<label class="form-label" for="id"><strong>Id</strong></label>
-						<InputNumber class="form-control" id="id" @bind-Value="Usuario.Id"></InputNumber>
-					</div>
-					<div class="col-3">
-						@*UserName*@
-						<label class="form-label" for="userName"><strong>UserName</strong></label>
-						<InputText class="form-control" id="userName" @bind-Value="Usuario.UserName"></InputText>
-						<ValidationMessage For="@(() => Usuario.UserName)" />
-					</div>
-					<div class="col-4">
-						@*Email*@
-						<label class="form-label" for="email"><strong>Email</strong></label>
-						<InputText class="form-control" id="email" @bind-Value="Usuario.Email"></InputText>
-						<ValidationMessage For="@(() => Usuario.Email)" />
-					</div>
-				</div>
-				<div class="row mt-2">
-					@*PasswordHash*@
-					<div class="col-3">
-						<label class="form-label" for="passwordHash"><strong>PasswordHash</strong></label>
-						<InputText class="form-control" id="passwordHash" @bind-Value="Usuario.PasswordHash"></InputText>
-					</div>
-					@*PhoneNumber*@
-					<div class="col-3">
-						<label class="form-label" for="phoneNumber"><strong>PhoneNumber</strong></label>
-						<InputText class="form-control" id="phoneNumber" @bind-Value="Usuario.PhoneNumber"></InputText>
-					</div>
-					@*LockoutEnd*@
-					<div class="col-3">
-						<label class="form-label" for="lockoutEnd"><strong>LockoutEnd</strong></label>
-						<InputDate class="form-control" id="lockoutEnd" @bind-Value="Usuario.LockoutEnd"></InputDate>
-					</div>
-				</div>
-			</div>
-			@*Footer*@
-			<div class="card-footer text-center">
-				<button type="button" class="btn btn-outline-secondary ms-2" @onclick="()=>Volver()"> Volver</button>
-				<button type="submit" class="btn btn-outline-primary ms-2">Guardar</button>
-			</div>
-		</div>
-	</div>
+    <DataAnnotationsValidator />
+    <div class="container">
+        <div class="card shadow-lg">
+            @*Header*@
+            <div class="card-header text-center">
+                <div class="bg-primary text-white">
+                    <h3><strong>Editar Usuario</strong></h3>
+                </div>
+            </div>
+            @*Body*@
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-1">
+                        @*ID*@
+                        <label class="form-label" for="id"><strong>Id</strong></label>
+                        <InputNumber class="form-control" id="id" @bind-Value="Usuario.Id"></InputNumber>
+                    </div>
+                    <div class="col-3">
+                        @*UserName*@
+                        <label class="form-label" for="userName"><strong>UserName</strong></label>
+                        <InputText class="form-control" id="userName" @bind-Value="Usuario.UserName"></InputText>
+                        <ValidationMessage For="@(() => Usuario.UserName)" />
+                    </div>
+                    <div class="col-4">
+                        @*Email*@
+                        <label class="form-label" for="email"><strong>Email</strong></label>
+                        <InputText class="form-control" id="email" @bind-Value="Usuario.Email"></InputText>
+                        <ValidationMessage For="@(() => Usuario.Email)" />
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    @*PasswordHash*@
+                    <div class="col-3">
+                        <label class="form-label" for="passwordHash"><strong>PasswordHash</strong></label>
+                        <InputText class="form-control" id="passwordHash" @bind-Value="Usuario.PasswordHash"></InputText>
+                    </div>
+                    @*PhoneNumber*@
+                    <div class="col-3">
+                        <label class="form-label" for="phoneNumber"><strong>PhoneNumber</strong></label>
+                        <InputText class="form-control" id="phoneNumber" @bind-Value="Usuario.PhoneNumber"></InputText>
+                    </div>
+                    @*LockoutEnd*@
+                    <div class="col-3">
+                        <label class="form-label" for="lockoutEnd"><strong>LockoutEnd</strong></label>
+                        <InputDate class="form-control" id="lockoutEnd" @bind-Value="Usuario.LockoutEnd"></InputDate>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        <label class="form-label" for="assignedRoles"><strong>Roles Asignados</strong></label>
+                        <table class="table table-bordered mt-3">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Rol</th>
+                                    <th>Eliminar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var role in Usuario.Role)
+                                {
+                                    <tr>
+                                        <td>@role.Id</td>
+                                        <td>@role.Name</td>
+                                        <td>
+                                            <button class="btn btn-danger" @onclick="() => RemoveRole(role)">Eliminar</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" for="availableRoles"><strong>Agregar Roles</strong></label>
+                        <InputSelect class="form-control" id="availableRoles" @bind-Value="SelectedRoleId">
+                            <option value="">Seleccione un rol</option>
+                            @foreach (var role in AvailableRoles)
+                            {
+                                <option value="@role.Id">@role.Name</option>
+                            }
+                        </InputSelect>
+                        <button class="btn btn-primary mt-2" @onclick="AddRole">Agregar Rol</button>
+                    </div>
+                </div>
+            </div>
+            @*Footer*@
+            <div class="card-footer text-center">
+                <button type="button" class="btn btn-outline-secondary ms-2" @onclick="Volver">Volver</button>
+                <button type="submit" class="btn btn-outline-primary ms-2">Guardar</button>
+            </div>
+        </div>
+    </div>
 </EditForm>
 
 @Mensaje
+
 @code {
-	[Parameter]
-	public int UsuarioId { get; set; }
+    [Parameter]
+    public int UsuarioId { get; set; }
 
-	public AspNetUsers Usuario { get; set; } = new AspNetUsers();
-	public string Mensaje { get; set; } = string.Empty;
+    public AspNetUsers Usuario { get; set; } = new AspNetUsers();
+    public List<AspNetRoles> AvailableRoles { get; set; } = new List<AspNetRoles>();
+    public string Mensaje { get; set; } = string.Empty;
+    public int SelectedRoleId { get; set; }
 
-	protected override async Task OnInitializedAsync() {
-		Usuario = await userService.GetByIdAsync(UsuarioId);
-	}
+    protected override async Task OnInitializedAsync()
+    {
+        Usuario = await userService.GetByIdAsync(UsuarioId);
+        AvailableRoles = (await roleService.GetAllAsync()).ToList();
+        // Filter out roles already assigned to the user
+        AvailableRoles = AvailableRoles.Where(r => !Usuario.Role.Any(ur => ur.Id == r.Id)).ToList();
+    }
 
-	public async Task Modificar() {
-		var result = await userService.UpdateAsync(Usuario);
+    public async Task Modificar()
+    {
+        var result = await userService.UpdateAsync(Usuario);
 
-		if (result != null) {
-			Mensaje = "Usuario Modificado  correctamente";
-			Usuario = new AspNetUsers();
-		}
+        if (result != null)
+        {
+            Mensaje = "Usuario modificado correctamente";
+            Usuario = new AspNetUsers();
+        }
+        else
+        {
+            Mensaje = "Error al modificar el usuario";
+        }
+    }
 
-		else
-			Mensaje = "Error al Modificar el usuario";
-	}
+    public void Volver()
+    {
+        Navigation.NavigateTo("/Usuario/Index");
+    }
 
-	public void Volver() {
-		Navigation.NavigateTo("/Usuario/Index");
-	}
+    public void RemoveRole(AspNetRoles role)
+    {
+        Usuario.Role.Remove(role);
+        AvailableRoles.Add(role);
+    }
+
+    public void AddRole()
+    {
+        var selectedRole = AvailableRoles.FirstOrDefault(r => r.Id == SelectedRoleId);
+        if (selectedRole != null)
+        {
+            Usuario.Role.Add(selectedRole);
+            AvailableRoles.Remove(selectedRole);
+            SelectedRoleId = 0; // Reset the selected role
+        }
+    }
 }
