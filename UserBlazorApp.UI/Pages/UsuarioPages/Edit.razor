@@ -114,8 +114,7 @@
     protected override async Task OnInitializedAsync()
     {
         Usuario = await userService.GetByIdAsync(UsuarioId);
-        AvailableRoles = (await roleService.GetAllAsync()).ToList();
-        // Filter out roles already assigned to the user
+        AvailableRoles = (await roleService.GetAllAsync()).ToList();      
         AvailableRoles = AvailableRoles.Where(r => !Usuario.Role.Any(ur => ur.Id == r.Id)).ToList();
     }
 
@@ -152,7 +151,7 @@
         {
             Usuario.Role.Add(selectedRole);
             AvailableRoles.Remove(selectedRole);
-            SelectedRoleId = 0; // Reset the selected role
+            SelectedRoleId = 0; 
         }
     }
 }
